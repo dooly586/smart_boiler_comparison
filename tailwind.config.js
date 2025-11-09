@@ -1,0 +1,21 @@
+/** @type {import('tailwindcss').Config} */
+module.exports = {
+  content: [
+    './app/**/*.{js,ts,jsx,tsx}',
+    './components/**/*.{js,ts,jsx,tsx}',
+  ],
+  theme: {
+    extend: {
+      animation: {
+        'slide-up': 'slide-up 0.3s ease-out forwards',
+      },
+      keyframes: {
+        'slide-up': {
+          'from': { transform: 'translateY(100%)' },
+          'to': { transform: 'translateY(0)' },
+        }
+      }
+    },
+  },
+  plugins: [],
+};

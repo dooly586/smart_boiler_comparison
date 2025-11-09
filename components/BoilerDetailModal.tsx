@@ -1,7 +1,7 @@
+'use client';
 
 import React, { useState } from 'react';
 import { Boiler } from '../types';
-import { summarizeText } from '../services/geminiService';
 import { XMarkIcon, CheckCircleIcon, XCircleIcon, SparklesIcon } from './IconComponents';
 
 interface BoilerDetailModalProps {
@@ -15,15 +15,25 @@ const Rating: React.FC<{ label: string; value: 'low' | 'medium' | 'high' }> = ({
     medium: { text: '보통', color: 'bg-yellow-500' },
     high: { text: '높음', color: 'bg-green-500' },
   };
+  const valueMap = {
+    low: '높음',
+    medium: '보통',
+    high: '낮음'
+  };
+
+  // Invert rating for cost, higher cost is bad (low rating)
+  const isCost = label.includes('비');
+  const displayValue = isCost ? value : (value === 'low' ? 'high' : value === 'high' ? 'low' : 'medium');
+  
   return (
     <div className="flex justify-between items-center mb-2">
       <span className="text-gray-600">{label}</span>
       <div className="flex items-center">
-        <span className={`text-sm font-semibold mr-2 ${ratings[value].color.replace('bg-', 'text-')}`}>{ratings[value].text}</span>
+        <span className={`text-sm font-semibold mr-2 ${ratings[displayValue].color.replace('bg-', 'text-')}`}>{ratings[displayValue].text}</span>
         <div className="w-24 h-2 bg-gray-200 rounded-full">
           <div
-            className={`h-2 rounded-full ${ratings[value].color}`}
-            style={{ width: value === 'low' ? '33%' : value === 'medium' ? '66%' : '100%' }}
+            className={`h-2 rounded-full ${ratings[displayValue].color}`}
+            style={{ width: displayValue === 'low' ? '33%' : displayValue === 'medium' ? '66%' : '100%' }}
           ></div>
         </div>
       </div>
@@ -39,9 +49,27 @@ const BoilerDetailModal: React.FC<BoilerDetailModalProps> = ({ boiler, onClose }
     if (!boiler.report) return;
     setIsLoading(true);
     setSummary('');
-    const result = await summarizeText(boiler.report.content);
-    setSummary(result);
-    setIsLoading(false);
+    try {
+      const response = await fetch('/api/summarize', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ text: boiler.report.content }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Server error: ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      setSummary(data.summary);
+    } catch (error) {
+      console.error("Error fetching summary:", error);
+      setSummary("AI 요약 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (

@@ -1,7 +1,7 @@
 {
-  "name": "Boiler Comparator",
-  "description": "An application to help consumers compare different types of boilers (electric, heat pump, ion, gas, oil), view AI-summarized reports, request consultations, and find local installers.",
   "requestFramePermissions": [
     "geolocation"
-  ]
+  ],
+  "name": "",
+  "description": ""
 }

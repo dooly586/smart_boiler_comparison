@@ -1,5 +1,6 @@
+'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import useGeolocation from '../hooks/useGeolocation';
 import { MOCK_INSTALLERS } from '../constants';
 import { Installer } from '../types';
