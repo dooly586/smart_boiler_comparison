@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { Boiler } from '../types';
 import { XMarkIcon, CheckCircleIcon, XCircleIcon, SparklesIcon } from './IconComponents';
+import { summarizeText } from '../services/geminiService';
 
 interface BoilerDetailModalProps {
   boiler: Boiler;
@@ -50,20 +51,8 @@ const BoilerDetailModal: React.FC<BoilerDetailModalProps> = ({ boiler, onClose }
     setIsLoading(true);
     setSummary('');
     try {
-      const response = await fetch('/api/summarize', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ text: boiler.report.content }),
-      });
-
-      if (!response.ok) {
-        throw new Error(`Server error: ${response.statusText}`);
-      }
-
-      const data = await response.json();
-      setSummary(data.summary);
+      const summaryText = await summarizeText(boiler.report.content);
+      setSummary(summaryText);
     } catch (error) {
       console.error("Error fetching summary:", error);
       setSummary("AI 요약 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.");
